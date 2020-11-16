@@ -20,4 +20,4 @@ function CreateUser({ username, email, onChange, onCreate }) {
   );
 }
 
-export default CreateUser;
+export default React.memo(CreateUser); // React.memo함수는 컴포넌트에서 리렌더링이 필요한 상황에서만 리렌더링을 하도록 설정 -> 컴포넌트의 props가 바뀌지 않았을 때 성능 최적화
