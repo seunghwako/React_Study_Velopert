@@ -1,5 +1,6 @@
 import React, { useReducer } from "react";
 
+// useReducer 사용하여 상태 업데이트 로직 분리
 function reducer(state, action) {
   switch (action.type) {
     case "INCREMENT":

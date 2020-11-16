@@ -1,9 +1,8 @@
-// useReducer, useState 둘 중 어느 경우에 어느 것을 택해야 할까?
-// 컴포넌트에서 관리하는 값이 딱 하나이고 그 값이 단순한 문자열, 숫자, boolean값이라면 useState가 유용할 수 있음
-// 하지만 컴포넌트에서 관리하는 값이 여러개이고 상태의 구조가 복잡해진다면 useReducer가 편리할 수 있음
+// useInputs Hook 사용
 import React, { useRef, useReducer, useMemo, useCallback } from "react";
 import UserList from "./UserList";
 import CreateUser from "./CreateUser";
+import useInputs from "./hooks/useInputs";
 
 function countActiveUsers(users) {
   console.log("활성 사용자 수를 세는중...");
@@ -11,10 +10,6 @@ function countActiveUsers(users) {
 }
 
 const initialState = {
-  inputs: {
-    username: "",
-    email: "",
-  },
   users: [
     {
       id: 1,
@@ -39,23 +34,13 @@ const initialState = {
 
 function reducer(state, action) {
   switch (action.type) {
-    case "CHANGE_INPUT":
-      return {
-        ...state,
-        inputs: {
-          ...state.inputs,
-          [action.name]: action.value,
-        },
-      };
     case "CREATE_USER":
       return {
-        inputs: initialState.inputs,
         users: state.users.concat(action.user),
       };
 
     case "TOGGLE_USER":
       return {
-        ...state,
         users: state.users.map((user) =>
           user.id === action.id ? { ...user, active: !user.active } : user
         ),
@@ -63,8 +48,7 @@ function reducer(state, action) {
 
     case "REMOVE_USER":
       return {
-        ...state,
-        users: state.users.filter((user) => user.id != action.id),
+        users: state.users.filter((user) => user.id !== action.id),
       };
 
     default:
@@ -73,20 +57,14 @@ function reducer(state, action) {
 }
 
 function App() {
+  const [{ username, email }, onChange, reset] = useInputs({
+    username: "",
+    email: "",
+  });
   const [state, dispatch] = useReducer(reducer, initialState);
   const nextId = useRef(4);
 
   const { users } = state;
-  const { username, email } = state.inputs;
-
-  const onChange = useCallback((e) => {
-    const { name, value } = e.target;
-    dispatch({
-      type: "CHANGE_INPUT",
-      name,
-      value,
-    });
-  }, []);
 
   const onCreate = useCallback(() => {
     dispatch({
@@ -97,8 +75,9 @@ function App() {
         email,
       },
     });
+    reset();
     nextId.current += 1;
-  }, [username, email]);
+  }, [username, email, reset]);
 
   const onToggle = useCallback((id) => {
     dispatch({
